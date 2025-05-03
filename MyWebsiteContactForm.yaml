@@ -1,13 +1,13 @@
 ##
- # Copyright (c) Jaime Elso de Blas (https://jaimeelso.com)
- # Follow me on twitter: @jaimeelso
- # Check out my Github: https://github.com/jaimeelso
- # This code is licensed under the MIT license.
- # Created on: 02/28/2023
- #
- # Version: 1.0
- # Description: This CloudFormation template gathers all necessary resources and their configurations to 
- # deploy a serverless backend that handles the logic behind my website's contact form.
+# Copyright (c) Jaime Elso de Blas (https://jaimeelso.com)
+# Follow me on twitter: @jaimeelso
+# Check out my Github: https://github.com/jaimeelso
+# This code is licensed under the MIT license.
+# Created on: 02/28/2023
+#
+# Version: 1.0
+# Description: This CloudFormation template gathers all necessary resources and their configurations to
+# deploy a serverless backend that handles the logic behind my website's contact form.
 ##
 
 AWSTemplateFormatVersion: 2010-09-09
@@ -69,14 +69,14 @@ Resources:
               Service:
                 - lambda.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - "sts:AssumeRole"
 
   ContactFormPolicy:
     Type: AWS::IAM::Policy
     Properties:
       PolicyName: ContactForm
       PolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Action:
@@ -88,7 +88,7 @@ Resources:
               - logs:PutLogEvents
             Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${ContactFormFunction}:*"
           - Effect: Allow
-            Action: 
+            Action:
               - secretsmanager:GetSecretValue
             Resource: !Ref ContactFormSecret
           - Effect: Allow
@@ -97,14 +97,14 @@ Resources:
             Resource: !Ref ContactFormTopic
       Roles:
         - !Ref ContactFormRole
-  
+
   # AWS Lambda
   ContactFormFunction:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: ContactForm
       Description: Function that manages the backend logic of the contact form
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Architectures:
         - x86_64
       MemorySize: 128
@@ -121,16 +121,16 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !GetAtt ContactFormFunction.Arn
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub 
+      SourceArn: !Sub
         - "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ContactFormApiId}/*/*/contactForm"
-        - ContactFormApiId: 
+        - ContactFormApiId:
             Fn::ImportValue: !Sub "${ApiStackName}-ApiId"
 
   # AWS ApiGateway
   ContactFormApiRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
-      ApiId: 
+      ApiId:
         Fn::ImportValue: !Sub "${ApiStackName}-ApiId"
       RouteKey: "ANY /contactForm"
       AuthorizationType: "NONE"
@@ -142,7 +142,7 @@ Resources:
   ContactFormApiIntegration:
     Type: AWS::ApiGatewayV2::Integration
     Properties:
-      ApiId: 
+      ApiId:
         Fn::ImportValue: !Sub "${ApiStackName}-ApiId"
       Description: "Integration with Lambda function"
       IntegrationType: "AWS_PROXY"
