@@ -18,9 +18,10 @@ Parameters:
   SubscriptionEndpoint:
     Type: String
     Description: The email address to which contact form messages should be sent
-  RecaptchaSecretKey:
+  TurnstileSecretKey:
     Type: String
-    Description: The secret key to call de reCaptcha API from the backend
+    Description: The secret key to call the Cloudflare Turnstile API from the backend
+    NoEcho: true
   LambdaS3Bucket:
     Type: String
     Description: Bucket name where Lambda code is place
@@ -52,8 +53,8 @@ Resources:
     Type: AWS::SecretsManager::Secret
     Properties:
       Name: ContactForm
-      Description: reCAPTCHA Private Key and SNS ARN
-      SecretString: !Sub '{"CAPTCHA_KEY": "${RecaptchaSecretKey}", "SNS_ARN": "${ContactFormTopic}"}'
+      Description: Cloudflare Turnstile Private Key and SNS ARN
+      SecretString: !Sub '{"TURNSTILE_SECRET_KEY": "${TurnstileSecretKey}", "SNS_ARN": "${ContactFormTopic}"}'
 
   # IAM
   ContactFormRole:
@@ -104,7 +105,7 @@ Resources:
     Properties:
       FunctionName: ContactForm
       Description: Function that manages the backend logic of the contact form
-      Runtime: nodejs22.x
+      Runtime: nodejs24.x
       Architectures:
         - x86_64
       MemorySize: 128
